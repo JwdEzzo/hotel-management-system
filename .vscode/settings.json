@@ -1,0 +1,6 @@
+{
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "scm.compactFolders": true,
+  "editor.suggest.showFolders": false,
+  "java.compile.nullAnalysis.mode": "automatic"
+}
