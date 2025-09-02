@@ -146,4 +146,9 @@ public class EmployeeService {
       return false;
    }
 
+   public EmployeeResponseDto getEmployeeByEmail(String email) {
+      Employee employee = employeeRepository.findByEmail(email);
+      return convertEntityToResponseDto(employee);
+   }
+
 }

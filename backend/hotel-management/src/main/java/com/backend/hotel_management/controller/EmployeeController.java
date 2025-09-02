@@ -87,4 +87,13 @@ public class EmployeeController {
       }
    }
 
+   @GetMapping("/email/{email}")
+   public ResponseEntity<EmployeeResponseDto> getEmployeeByEmail(@PathVariable String email) {
+      try {
+         EmployeeResponseDto employee = employeeService.getEmployeeByEmail(email);
+         return new ResponseEntity<>(employee, HttpStatus.OK);
+      } catch (RuntimeException e) {
+         throw new RuntimeException("Employee not found with email: " + email);
+      }
+   }
 }

@@ -18,7 +18,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { BookingRequest } from "../../types/requestTypes";
+import type { BookingRequest } from "../types/requestTypes";
 
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";

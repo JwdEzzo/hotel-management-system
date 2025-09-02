@@ -84,7 +84,7 @@ export interface UpdateBookingRequest {
 }
 
 export interface ComplaintRequest {
-  guestId: number;
+  guestEmail: string;
   title: string;
   message: string;
 }

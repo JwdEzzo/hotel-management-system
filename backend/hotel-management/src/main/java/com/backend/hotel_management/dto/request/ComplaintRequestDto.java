@@ -1,5 +1,6 @@
 package com.backend.hotel_management.dto.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -11,8 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ComplaintRequestDto {
 
-   @NotNull(message = "Guest ID is required")
-   private Long guestId;
+   @Email(message = "Guest Email should be valid")
+   @NotNull(message = "Guest Email is required")
+   private String guestEmail;
 
    @NotNull(message = "Title is required")
    @NotBlank(message = "Title is required")

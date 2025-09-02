@@ -14,5 +14,5 @@ public class ComplaintResponseDto {
    private String title;
    private String message;
    private LocalDateTime createdAt;
-   private Long guestId; // Just reference the guest
+   private String guestEmail; // Just reference the guest
 }

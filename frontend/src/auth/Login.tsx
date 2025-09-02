@@ -54,7 +54,7 @@ function Login() {
         })
       );
 
-      navigate("/manager/tables");
+      navigate(`/employee/${response.email}`);
     } catch (error) {
       console.log("Error logging in", error);
       alert("Login failed. Please check your credentials.");

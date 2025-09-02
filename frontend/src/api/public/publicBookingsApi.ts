@@ -1,4 +1,3 @@
-// src/api/public/publicBookingsApi.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { BookingRequest } from "@/types/requestTypes";
 import { type BookingResponse } from "@/types/responseTypes";
@@ -25,6 +24,12 @@ export const publicBookingApi = createApi({
           method: "GET",
         }),
       }),
+      deleteBookingByBookingReference: builder.mutation<void, string>({
+        query: (bookingReference) => ({
+          url: `/bookings/reference/${bookingReference}`,
+          method: "DELETE",
+        }),
+      }),
     };
   },
 });
@@ -32,4 +37,5 @@ export const publicBookingApi = createApi({
 export const {
   useCreateBookingPublicMutation,
   useGetBookingsByGuestEmailQuery,
+  useDeleteBookingByBookingReferenceMutation,
 } = publicBookingApi;

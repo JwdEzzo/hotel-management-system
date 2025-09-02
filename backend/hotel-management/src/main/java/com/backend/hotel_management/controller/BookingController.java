@@ -84,4 +84,10 @@ public class BookingController {
       List<BookingResponseDto> bookings = bookingService.getBookingsByGuestEmail(guestEmail);
       return new ResponseEntity<>(bookings, HttpStatus.OK);
    }
+
+   @DeleteMapping("/reference/{bookingReference}")
+   public ResponseEntity<Void> deleteBookingByReference(@PathVariable String bookingReference) {
+      bookingService.deleteBookingByReference(bookingReference);
+      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+   }
 }

@@ -22,6 +22,8 @@ import com.backend.hotel_management.repository.GuestRepository;
 import com.backend.hotel_management.repository.HotelServingRepository;
 import com.backend.hotel_management.repository.RoomRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class BookingService {
 
@@ -213,6 +215,14 @@ public class BookingService {
    public List<BookingResponseDto> getBookingsByGuestEmail(String email) {
       List<Booking> bookings = bookingRepository.findByGuestEmail(email);
       return convertToResponseDtoList(bookings);
+   }
+
+   @Transactional
+   public void deleteBookingByReference(String bookingReference) {
+      if (!bookingRepository.existsByBookingReference(bookingReference)) {
+         throw new RuntimeException("Booking not found with reference: " + bookingReference);
+      }
+      bookingRepository.deleteByBookingReference(bookingReference);
    }
 
 }

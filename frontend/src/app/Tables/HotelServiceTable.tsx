@@ -323,7 +323,7 @@ export function HotelServiceTable() {
   }
 
   return (
-    <div className="w-1/2 mx-auto">
+    <div className="w-full mx-auto  px-4 lg:px-6">
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter name..."

@@ -186,9 +186,9 @@ public class DataInitializer implements CommandLineRunner {
 
    private void createBookings() {
       // Create guests with bookings (no guests without bookings)
-      Guest guest1 = createGuest("Alice Brown", "alice@email.com", "admin123", "+1234567890", "USA", "123 Main St",
+      Guest guest1 = createGuest("Alice Brown", "alice@hotmail.com", "admin123", "+1234567890", "USA", "123 Main St",
             "New York");
-      Guest guest2 = createGuest("Bob Green", "bob@email.com", "admin123", "+0987654321", "Canada", "456 Oak Ave",
+      Guest guest2 = createGuest("Bob Green", "bob@hotmail.com", "admin123", "+0987654321", "Canada", "456 Oak Ave",
             "Toronto");
 
       guestRepository.saveAll(Arrays.asList(guest1, guest2));
@@ -254,7 +254,7 @@ public class DataInitializer implements CommandLineRunner {
 
    private void createComplaints() {
       // Get a guest who has a booking
-      Guest guest = guestRepository.findByEmail("alice@email.com").orElseThrow();
+      Guest guest = guestRepository.findByEmail("alice@hotmail.com").orElseThrow();
 
       Complaint complaint = new Complaint();
       complaint.setTitle("Room Temperature Issue");

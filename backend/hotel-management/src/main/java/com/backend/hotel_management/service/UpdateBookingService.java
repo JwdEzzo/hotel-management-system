@@ -210,7 +210,8 @@ public class UpdateBookingService {
             existingBooking.setCheckInDateTime(requestDto.getCheckInDateTime());
             existingBooking.setCheckOutDateTime(requestDto.getCheckOutDateTime());
             existingBooking.setRoom(newRoom);
-            existingBooking.setSelectedServices(selectedServices);
+            existingBooking.getSelectedServices().clear();
+            existingBooking.getSelectedServices().addAll(selectedServices);
             existingBooking.setServiceQuantities(requestDto.getServiceQuantities());
             existingBooking.setAdditionalGuests(requestDto.getAdditionalGuestNames());
             existingBooking.setTotalPrice(totalPrice);

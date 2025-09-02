@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-export interface User {
+interface User {
   email: string;
   role: "MANAGER" | "RECEPTIONIST" | "HOUSEKEEPING" | "MAINTENANCE" | "KITCHEN";
 }
@@ -46,3 +46,4 @@ const authSlice = createSlice({
 
 export default authSlice.reducer;
 export const { setCredentials, logout } = authSlice.actions;
+export type { User };

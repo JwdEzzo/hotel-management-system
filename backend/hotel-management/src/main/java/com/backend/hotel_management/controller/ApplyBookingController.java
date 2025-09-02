@@ -34,4 +34,5 @@ public class ApplyBookingController {
          throw new RuntimeException("Error creating booking application: " + e.getMessage());
       }
    }
+
 }

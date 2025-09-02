@@ -328,7 +328,7 @@ export function GuestTable() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full mx-auto  px-4 lg:px-6">
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter by name..."

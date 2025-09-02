@@ -41,6 +41,7 @@ export interface BookingResponse {
   totalPrice: string | number; // BigDecimal can come as string or number
   guest: GuestResponse;
   room: RoomResponse;
+  additionalGuestNames?: string[];
 }
 
 export interface HotelServiceResponse {
@@ -59,7 +60,7 @@ export interface ApplyBookingResponse {
   checkOutDateTime: string; // ISO datetime string
   totalPrice: number;
 
-  // Guest Information (confirmation)
+  // Guest Information
   fullName: string;
   email: string;
   phoneNumber: string;
@@ -77,11 +78,11 @@ export interface ComplaintResponse {
   title: string;
   message: string;
   createdAt: string;
-  guestId: number;
+  guestEmail: string;
 }
 
 export interface UpdateBookingResponse {
-  // Guest Information (confirmation)
+  // Guest Information
   fullName: string;
   additionalGuests: string[];
   bookingReference: string;

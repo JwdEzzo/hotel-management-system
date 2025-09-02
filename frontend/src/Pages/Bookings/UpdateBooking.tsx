@@ -6,8 +6,8 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { UpdateBookingRequest } from "@/types/requestTypes";
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -15,17 +15,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import { Checkbox } from "./ui/checkbox";
-import { useEffect } from "react";
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useEffect, useState, useMemo } from "react";
 import {
   useGetBookingEntityByReferenceQuery,
   useGetUpdateBookingResponseByReferenceQuery,
@@ -79,6 +79,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
   const { bookingReference } = useParams<{ bookingReference: string }>();
   const [updateBooking2, { isLoading: isUpdating }] =
     useUpdateBooking2Mutation();
+  const [selectKey, setSelectKey] = useState(0);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -88,20 +89,30 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
   const {
     data: existingUpdateBookingResponse,
     isLoading: isUpdateBookingResponseLoading,
+    refetch: refetchUpdateBookingResponse,
   } = useGetUpdateBookingResponseByReferenceQuery(
     { bookingReference: bookingReference! },
     {
       skip: !bookingReference,
+      refetchOnMountOrArgChange: true,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
     }
   );
 
-  const { data: existingBooking, isLoading: isExistingBookingLoading } =
-    useGetBookingEntityByReferenceQuery(
-      { bookingReference: bookingReference! },
-      {
-        skip: !bookingReference,
-      }
-    );
+  const {
+    data: existingBooking,
+    isLoading: isExistingBookingLoading,
+    refetch: refetchExistingBooking,
+  } = useGetBookingEntityByReferenceQuery(
+    { bookingReference: bookingReference! },
+    {
+      skip: !bookingReference,
+      refetchOnMountOrArgChange: true,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+    }
+  );
 
   const form = useForm<UpdateBookingValues>({
     resolver: zodResolver(updateBookingSchema),
@@ -115,11 +126,14 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
       city: existingBooking?.guest?.city || "",
       checkInDate: existingBooking?.checkInDateTime || today,
       checkOutDate: existingBooking?.checkOutDateTime || today,
-      selectedRoomId: existingBooking?.room?.id || 0,
+      selectedRoomId: existingBooking?.room?.id || 2,
       selectedServiceIds:
         existingUpdateBookingResponse?.hotelServings?.map(
           (service) => service.id
         ) || [],
+      serviceQuantities: existingUpdateBookingResponse?.serviceQuantities,
+      additionalGuestNames:
+        existingBooking?.additionalGuestNames?.map((name) => ({ name })) || [],
     },
   });
 
@@ -128,41 +142,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
     name: "additionalGuestNames",
   });
 
-  // Populate form with existing booking data when it loads
-  useEffect(() => {
-    if (existingBooking && existingUpdateBookingResponse) {
-      const bookingData = {
-        fullName: existingBooking.guest?.fullName || "",
-        email: existingBooking.guest?.email || "",
-        password: "",
-        phoneNumber: existingBooking.guest?.phoneNumber || "",
-        country: existingBooking.guest?.country || "",
-        address: existingBooking.guest?.address || "",
-        city: existingBooking.guest?.city || "",
-        checkInDate: existingBooking.checkInDateTime
-          ? new Date(existingBooking.checkInDateTime).toISOString().slice(0, 16)
-          : "",
-        checkOutDate: existingBooking.checkOutDateTime
-          ? new Date(existingBooking.checkOutDateTime)
-              .toISOString()
-              .slice(0, 16)
-          : "",
-        selectedRoomId: existingBooking.room?.id || 0,
-        selectedServiceIds:
-          existingUpdateBookingResponse.hotelServings?.map(
-            (service) => service.id
-          ) || [],
-        serviceQuantities:
-          existingUpdateBookingResponse.serviceQuantities || {},
-        additionalGuestNames: (
-          existingUpdateBookingResponse.additionalGuests || []
-        ).map((name) => ({ name })),
-      };
-
-      // Reset form with existing data
-      form.reset(bookingData);
-    }
-  }, [existingBooking, existingUpdateBookingResponse, form]);
+  const currentBookingRoomId = existingBooking?.room?.id;
 
   // Set email from URL params if available
   useEffect(() => {
@@ -171,14 +151,19 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
     }
   }, [initialData, form]);
 
-  // Watch form values - same pattern as ApplyBooking
+  useEffect(() => {
+    refetchExistingBooking();
+    refetchUpdateBookingResponse();
+  }, []);
+
+  // Watch form values
   const checkInDate = form.watch("checkInDate");
   const checkOutDate = form.watch("checkOutDate");
   const selectedRoomId = form.watch("selectedRoomId");
   const selectedServiceIds = form.watch("selectedServiceIds");
   const serviceQuantities = form.watch("serviceQuantities");
 
-  // Calculate number of nights - same as ApplyBooking
+  // Calculate number of nights
   const calculateNights = () => {
     if (!checkInDate || !checkOutDate) return 0;
     const checkIn = new Date(checkInDate);
@@ -189,11 +174,12 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
 
   const numberOfNights = calculateNights();
 
-  // Only fetch available rooms when both dates are selected and valid
+  // Determine if we should fetch rooms
   const shouldFetchRooms =
     checkInDate && checkOutDate && checkOutDate > checkInDate;
 
-  const { data: availableRooms = [], isLoading: isRoomsLoading } =
+  // Fetch available rooms
+  const { data: fetchedAvailableRooms = [], isLoading: isRoomsLoading } =
     useGetAvailableRoomsQuery(
       {
         checkIn: checkInDate,
@@ -204,7 +190,36 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
       }
     );
 
-  // Get selected room details for occupancy validation - same as ApplyBooking
+  // Ensure the currently booked room is always an option
+  const availableRooms = useMemo(() => {
+    let roomsToUse = [...fetchedAvailableRooms];
+
+    // If the current booking room is not in the fetched list, add it
+    if (
+      currentBookingRoomId &&
+      existingBooking?.room &&
+      !fetchedAvailableRooms.some((r) => r.id === currentBookingRoomId)
+    ) {
+      const currentRoomAsResponse = {
+        id: existingBooking.room.id,
+        roomNumber: existingBooking.room.roomNumber,
+        roomType: existingBooking.room.roomType,
+        roomStatus: existingBooking.room.roomStatus,
+        pricePerNight: existingBooking.room.pricePerNight,
+        maxOccupancy: existingBooking.room.maxOccupancy,
+      };
+
+      roomsToUse = [currentRoomAsResponse, ...roomsToUse];
+    }
+
+    // Remove duplicates
+    const uniqueRooms = Array.from(
+      new Map(roomsToUse.map((room) => [room.id, room])).values()
+    );
+    return uniqueRooms;
+  }, [fetchedAvailableRooms, currentBookingRoomId, existingBooking]);
+
+  // Get selected room details for occupancy validation
   const selectedRoom = availableRooms.find(
     (room) => room.id === selectedRoomId
   );
@@ -214,7 +229,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
   // Check if we can add more guests
   const canAddMoreGuests = totalGuests < maxOccupancy;
 
-  // Helper function to get max quantity for PER_NIGHT services - same as ApplyBooking
+  // Helper function to get max quantity for PER_NIGHT services
   const getMaxQuantityForService = (service: any) => {
     if (service.pricingType === ServicePricingType.PER_NIGHT) {
       return numberOfNights;
@@ -234,7 +249,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
     }
 
     try {
-      // Validate PER_NIGHT service quantities - same as ApplyBooking
+      // Validate PER_NIGHT service quantities
       const perNightServices = services.filter(
         (service) => service.pricingType === ServicePricingType.PER_NIGHT
       );
@@ -255,7 +270,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
         return date.toISOString();
       };
 
-      // Extract just the names from the additional guests array - same as ApplyBooking
+      // Extract just the names from the additional guests array
       const additionalGuestNames =
         data.additionalGuestNames?.map((guest) => guest.name) || [];
 
@@ -283,7 +298,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
         return;
       }
 
-      // Validate occupancy - same as ApplyBooking
+      // Validate occupancy
       if (totalGuests > maxOccupancy) {
         alert(
           `This room can accommodate a maximum of ${maxOccupancy} guests. You have ${totalGuests} guests.`
@@ -297,14 +312,14 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
       }).unwrap();
 
       alert("Booking updated successfully!");
-      navigate("/my-bookings");
+      navigate(`/guest/${existingBooking?.guest.email}`);
     } catch (error) {
       console.log("Error updating the booking", error);
       alert("Error updating booking");
     }
   }
 
-  // Handle service selection - same logic as ApplyBooking
+  // Handle service selection
   const handleServiceSelection = (serviceId: number, checked: boolean) => {
     const currentSelectedIds = form.getValues("selectedServiceIds") || [];
     const currentQuantities = form.getValues("serviceQuantities") || {};
@@ -326,7 +341,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
     }
   };
 
-  // Handle quantity change - same logic as ApplyBooking
+  // Handle quantity change
   const handleQuantityChange = (serviceId: number, quantity: number) => {
     const currentQuantities = form.getValues("serviceQuantities") || {};
     const service = services.find((s) => s.id === serviceId);
@@ -344,7 +359,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
     });
   };
 
-  // Loading states - same as ApplyBooking
+  // Loading states
   if (
     isServicesLoading ||
     isExistingBookingLoading ||
@@ -371,7 +386,6 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
               onSubmit={form.handleSubmit(handleFormSubmit)}
               className="space-y-6"
             >
-              {/* Personal Information - same as ApplyBooking but without password */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">
                   Primary Guest Information
@@ -511,7 +525,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
                 />
               </div>
 
-              {/* Booking Dates - same as ApplyBooking */}
+              {/* Booking Dates */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Booking Details</h3>
 
@@ -527,10 +541,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
                             type="datetime-local"
                             min={today}
                             {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              form.setValue("selectedRoomId", 0);
-                            }}
+                            onChange={(e) => field.onChange(e)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -549,10 +560,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
                             type="datetime-local"
                             min={form.watch("checkInDate") || today}
                             {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              form.setValue("selectedRoomId", 0);
-                            }}
+                            onChange={(e) => field.onChange(e)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -562,7 +570,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
                 </div>
               </div>
 
-              {/* Room Selection - same as ApplyBooking */}
+              {/* Room Selection */}
               <FormField
                 control={form.control}
                 name="selectedRoomId"
@@ -570,34 +578,31 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
                   <FormItem>
                     <FormLabel>Room Selection *</FormLabel>
                     <Select
+                      key={selectKey}
                       onValueChange={(value) => {
                         field.onChange(Number(value));
                         form.setValue("additionalGuestNames", []);
                       }}
                       value={field.value ? field.value.toString() : ""}
-                      disabled={!shouldFetchRooms || isRoomsLoading}
+                      disabled={isRoomsLoading}
                     >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue
                             placeholder={
-                              !shouldFetchRooms
-                                ? "Please select check-in and check-out dates first"
-                                : isRoomsLoading
+                              isRoomsLoading
                                 ? "Loading available rooms..."
                                 : availableRooms.length === 0
-                                ? "No rooms available for selected dates"
+                                ? "No rooms available"
                                 : "Select a room"
                             }
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {availableRooms.length === 0 &&
-                        shouldFetchRooms &&
-                        !isRoomsLoading ? (
+                        {availableRooms.length === 0 && !isRoomsLoading ? (
                           <div className="px-3 py-2 text-sm text-muted-foreground">
-                            No rooms available for selected dates
+                            No rooms available for selected dates.
                           </div>
                         ) : (
                           availableRooms.map((room) => (
@@ -608,6 +613,8 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
                               Room {room.roomNumber} - {room.roomType} - $
                               {room.pricePerNight}/night (Max{" "}
                               {room.maxOccupancy} guests)
+                              {room.id === currentBookingRoomId &&
+                                " (Current Room)"}
                             </SelectItem>
                           ))
                         )}
@@ -618,7 +625,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
                 )}
               />
 
-              {/* Additional Guests Section - same as ApplyBooking */}
+              {/* Additional Guests Section */}
               {selectedRoom && (
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
@@ -682,7 +689,7 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
                 </div>
               )}
 
-              {/* Hotel Services with Quantities - exactly like ApplyBooking */}
+              {/* Hotel Services with Quantities */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">
                   Hotel Services (Optional)
@@ -774,16 +781,11 @@ function UpdateBooking({ initialData }: UpdateBookingProps) {
                 </div>
               </div>
 
-              {/* Submit Button - same as ApplyBooking */}
+              {/* Submit Button */}
               <div>
                 <Button
                   type="submit"
-                  disabled={
-                    !shouldFetchRooms ||
-                    isRoomsLoading ||
-                    isUpdating ||
-                    availableRooms.length === 0
-                  }
+                  disabled={isUpdating || isRoomsLoading}
                   className="w-1/2"
                 >
                   {isUpdating ? (

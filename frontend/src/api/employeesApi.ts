@@ -28,6 +28,11 @@ export const employeeApi = createApi({
         query: (id) => `/employees/${id}`,
         providesTags: (result, error, id) => [{ type: "Employee", id }],
       }),
+      // Get employee by email
+      getEmployeeByEmail: builder.query<EmployeeResponse, string>({
+        query: (email) => `/employees/email/${email}`,
+        providesTags: (result, error, email) => [{ type: "Employee", email }],
+      }),
 
       createEmployee: builder.mutation<EmployeeResponse, EmployeeRequest>({
         query: (newEmployee) => ({
@@ -70,4 +75,5 @@ export const {
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
   useDeleteEmployeeMutation,
+  useGetEmployeeByEmailQuery,
 } = employeeApi;

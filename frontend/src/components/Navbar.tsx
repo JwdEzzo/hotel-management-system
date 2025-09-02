@@ -1,13 +1,5 @@
-import { LogOut, Settings, User } from "lucide-react";
 import { ModeToggle } from "./ModeToggle";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+
 import { Link } from "react-router-dom";
 
 function Navbar() {
@@ -30,28 +22,8 @@ function Navbar() {
         >
           Employee Login
         </Link>
-
+        <Link to={"/asd"}>Profile</Link>
         <ModeToggle />
-        <DropdownMenu>
-          <DropdownMenuTrigger></DropdownMenuTrigger>
-          <DropdownMenuContent sideOffset={10}>
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem variant="destructive">
-              <LogOut />
-              Logout
-            </DropdownMenuItem>
-            <DropdownMenuItem>Subscription</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
     </nav>
   );

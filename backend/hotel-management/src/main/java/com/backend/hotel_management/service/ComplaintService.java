@@ -30,8 +30,8 @@ public class ComplaintService {
       entity.setCreatedAt(LocalDateTime.now());
 
       // Fetch the guest from database using the guestId from request
-      Guest guest = guestRepository.findById(request.getGuestId())
-            .orElseThrow(() -> new RuntimeException("Guest not found with ID: " + request.getGuestId()));
+      Guest guest = guestRepository.findByEmail(request.getGuestEmail())
+            .orElseThrow(() -> new RuntimeException("Guest not found with ID: " + request.getGuestEmail()));
 
       entity.setGuest(guest);
       return entity;
@@ -43,7 +43,7 @@ public class ComplaintService {
       responseDto.setTitle(entity.getTitle());
       responseDto.setMessage(entity.getMessage());
       responseDto.setCreatedAt(entity.getCreatedAt());
-      responseDto.setGuestId(entity.getGuest().getId());
+      responseDto.setGuestEmail(entity.getGuest().getEmail());
       return responseDto;
    }
 
@@ -66,19 +66,24 @@ public class ComplaintService {
       return convertEntityToResponseDto(complaint);
    }
 
+   public List<ComplaintResponseDto> getComplaintByGuestEmail(String guestEmail) {
+      List<Complaint> complaints = complaintRepository.findByGuestEmail(guestEmail);
+      return convertEntityListToResponseDtos(complaints);
+   }
+
    public List<ComplaintResponseDto> getAllComplaints() {
       List<Complaint> complaints = complaintRepository.findAll();
       return convertEntityListToResponseDtos(complaints);
    }
 
-   public ComplaintResponseDto updateComplaint(Long id, ComplaintRequestDto request) {
-      Complaint complaint = complaintRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Complaint not found with ID: " + id));
-      complaint.setTitle(request.getTitle());
-      complaint.setMessage(request.getMessage());
-      Complaint updatedComplaint = complaintRepository.save(complaint);
-      return convertEntityToResponseDto(updatedComplaint);
-   }
+   // public ComplaintResponseDto updateComplaint(Long id, ComplaintRequestDto request) {
+   //    Complaint complaint = complaintRepository.findById(id)
+   //          .orElseThrow(() -> new RuntimeException("Complaint not found with ID: " + id));
+   //    complaint.setTitle(request.getTitle());
+   //    complaint.setMessage(request.getMessage());
+   //    Complaint updatedComplaint = complaintRepository.save(complaint);
+   //    return convertEntityToResponseDto(updatedComplaint);
+   // }
 
    public void deleteComplaint(Long id) {
       if (!complaintRepository.existsById(id)) {

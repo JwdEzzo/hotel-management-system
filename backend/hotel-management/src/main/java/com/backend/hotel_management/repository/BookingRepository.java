@@ -60,4 +60,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
       List<Booking> findBookingsInDateRange(@Param("startDate") LocalDateTime startDate,
                   @Param("endDate") LocalDateTime endDate);
 
+      // Delete booking by booking reference
+      void deleteByBookingReference(String bookingReference);
 }

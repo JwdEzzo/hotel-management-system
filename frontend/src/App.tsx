@@ -12,17 +12,19 @@ import CreateHotelService from "./Pages/HotelServings/CreateHotelService";
 import CreateEmployee from "./Pages/Employees/CreateEmployee";
 import EditHotelService from "./Pages/HotelServings/EditHotelService";
 import EditEmployee from "./Pages/Employees/EditEmployee";
-import EditBooking from "./Pages/Bookings/EdtiBooking";
+import EditBooking from "./TRASH/EdtiBooking";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import Login from "./auth/Login";
 import { ComplaintTable } from "./app/Tables/ComplaintTable";
-import CreateComplaint from "./Pages/Complaints/CreateComplaint";
-import ApplyBooking from "./components/ApplyBooking";
+import CreateComplaint from "@/TRASH/Complaints/CreateComplaint";
+import ApplyBooking from "@/Pages/Bookings/ApplyBooking";
 import GuestLogin from "./auth/GuestLogin";
-import GuestDashboard from "./components/GuestDashboard";
-import UpdateBooking from "./components/UpdateBooking";
-import { PublicHotelPage2 } from "./Pages/PublicHotelPage2";
+import UpdateBooking from "@/Pages/Bookings/UpdateBooking";
 import ContactUs from "./Pages/ContactUs";
+import PublicHotelPage from "./Pages/PublicHotelPage";
+import EmployeeUserPage from "./Pages/EmployeePage/EmployeeUserPage";
+import GuestDashboard2 from "./Pages/Guests/GuestDashboard2";
+import path from "path";
 
 function App() {
   return (
@@ -35,7 +37,7 @@ function App() {
           <Route
             path="/"
             element={
-              <PublicHotelPage2
+              <PublicHotelPage
                 tagline={"Hotel Management System"}
                 heading={"Welcome to our Hotel"}
                 description={
@@ -47,16 +49,24 @@ function App() {
               />
             }
           />
-          <Route path="/createcomplaint" element={<CreateComplaint />} />
+          <Route path="/guest/complaint" element={<CreateComplaint />} />
           <Route path="/guestlogin" element={<GuestLogin />} />
           <Route path="/contact-us" element={<ContactUs />} />
 
           {/* Create Entities Routes - Role-based protection */}
-          <Route
+          {/* <Route
             path="/guest/:email"
             element={
               <ProtectedRoute requiredRoles={["GUEST"]}>
                 <GuestDashboard />
+              </ProtectedRoute>
+            }
+          /> */}
+          <Route
+            path="/guest/:email"
+            element={
+              <ProtectedRoute requiredRoles={["GUEST"]}>
+                <GuestDashboard2 />
               </ProtectedRoute>
             }
           />
@@ -109,6 +119,14 @@ function App() {
                   <ComplaintTable />
                 </ProtectedRoute>
               </div>
+            }
+          />
+          <Route
+            path="/employee/:email"
+            element={
+              <ProtectedRoute requiredRoles={["MANAGER"]}>
+                <EmployeeUserPage />
+              </ProtectedRoute>
             }
           />
 

@@ -7,8 +7,8 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ApplyBookingRequest } from "@/types/requestTypes";
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -16,16 +16,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import { Checkbox } from "./ui/checkbox";
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ServicePricingType } from "@/types/enums"; // Import the enum
 
 const applyBookingSchema = z.object({

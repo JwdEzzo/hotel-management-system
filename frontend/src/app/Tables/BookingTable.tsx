@@ -454,10 +454,10 @@ export function BookingTable() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full mx-auto  px-4 lg:px-6">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter by name..."
+          placeholder="Filter by room number..."
           value={
             (table.getColumn("roomNumber")?.getFilterValue() as string) ?? ""
           }

@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { LogOut, Calendar, X, Loader2, AlertCircle } from "lucide-react"; // Import icons
+import { LogOut, Calendar, Loader2, AlertCircle } from "lucide-react"; // Import icons
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "@/store/store";
@@ -41,14 +41,13 @@ const GuestDashboard: React.FC = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/"); // Navigate to home or login page after logout
+    navigate("/");
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
       <Card className="w-full max-w-2xl">
         {" "}
-        {/* Increased max-width for better content fit */}
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Guest Dashboard</CardTitle>
           <CardDescription>
